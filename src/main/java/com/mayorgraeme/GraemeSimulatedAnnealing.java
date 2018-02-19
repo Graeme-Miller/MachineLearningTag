@@ -112,7 +112,7 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
     }
 
     public GraemeSimulatedAnnealing(final NeuralNetwork network, final Map<String, Occupant[][]> gameWorldMap) {
-        this(network, 10, 2, 60); //TODO:reset to 1000;
+        this(network, 30, 2, 100); //TODO:reset to 1000;
         this.setMaxIterations(40);
         this.gameWorldMap = gameWorldMap;
     }

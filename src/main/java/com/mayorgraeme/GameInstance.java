@@ -4,6 +4,7 @@ import com.mayorgraeme.occupant.Carnivore;
 import com.mayorgraeme.occupant.Herbivore;
 import com.mayorgraeme.occupant.Occupant;
 import org.neuroph.core.NeuralNetwork;
+import org.neuroph.core.Neuron;
 
 
 import java.util.*;
@@ -107,53 +108,23 @@ public class GameInstance {
     }
 
     public void runHerbivore() {
-        double up = 0d;
-        double down = 0d;
-        double left = 0d;
-        double right = 0d;
 
-//        double wallUp = 0d;
-//        double wallDown = 0d;
-//        double wallFeft = 0d;
-//        double wallRight = 0d;
-
-
-        //Scan Up
-        XY upTopLeft = new XY(herbivoreLoc.getX() - scanRange, herbivoreLoc.getY() - scanRange);
-        XY upBottomRight = new XY(herbivoreLoc.getX() + scanRange, herbivoreLoc.getY());
-        if (inBounds(upTopLeft, upBottomRight, carnivoreLoc)) {
-            up = up + 1;
+        int i = 0;
+        Neuron[] inputNeurons = neuralNetwork.getInputNeurons();
+        for (int x = 0; x < occupants.length; x++) {
+            for (int y = 0; y < occupants[0].length; y++) {
+                Occupant occupant = occupants[x][y];
+                if (occupant == null) {
+                    inputNeurons[i].setInput(0);
+                } else {
+                    inputNeurons[i].setInput(1);
+                }
+                i++;
+            }
         }
 
-        //Scan Down
-        XY downTopLeft = new XY(herbivoreLoc.getX() - scanRange, herbivoreLoc.getY());
-        XY downBottomRight = new XY(herbivoreLoc.getX() + scanRange, herbivoreLoc.getY() + scanRange);
-        if (inBounds(downTopLeft, downBottomRight, carnivoreLoc)) {
-            down = down + 1;
-        }
-
-        //Scan Left
-        XY leftTopLeft = new XY(herbivoreLoc.getX() - scanRange, herbivoreLoc.getY() - scanRange);
-        XY leftBottomRight = new XY(herbivoreLoc.getX(), herbivoreLoc.getY() + scanRange);
-        if (inBounds(leftTopLeft, leftBottomRight, carnivoreLoc)) {
-            left = left + 1;
-        }
-
-        //Scan Right
-        XY rightTopLeft = new XY(herbivoreLoc.getX(), herbivoreLoc.getY() - scanRange);
-        XY rightBottomRight = new XY(herbivoreLoc.getX() + scanRange, herbivoreLoc.getY() + scanRange);
-        if (inBounds(rightTopLeft, rightBottomRight, carnivoreLoc)) {
-            right = right + 1;
-        }
-
-        neuralNetwork.setInput(up, down, left, right);
-        neuralNetwork.calculate();
+         neuralNetwork.calculate();
         double[] output = neuralNetwork.getOutput();
-
-        if(print) {
-            System.out.println("Input: "+ up + " " + down + " " + left + " " + right);
-            System.out.println("Output: "+ output[0] + " " + output[1] + " " + output[2] + " " + output[3]);
-        }
 
         List<Vector> list = new ArrayList<>();
 

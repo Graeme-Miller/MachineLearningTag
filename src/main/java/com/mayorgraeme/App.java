@@ -42,15 +42,16 @@ public class App
         displayWorld[12][12] = new Herbivore();
         displayWorld[15][15] = new Carnivore();
 
-        Perceptron network = new Perceptron(4, 4);
+//        Perceptron network = new Perceptron(4, 4);
+        MultiLayerPerceptron network = new MultiLayerPerceptron(625, 10, 4);
 
         GraemeSimulatedAnnealing gsa = new GraemeSimulatedAnnealing(network, gameWorldMap);
 
         Scanner console = new Scanner(System.in);
-        console.nextLine();
 
-        GameInstance gi = new GameInstance(cloneWorld(displayWorld), network, 2000, true, 350);
-        System.out.println("First Run Result: " + gi.run());
+        // console.nextLine();
+        // GameInstance gi = new GameInstance(cloneWorld(displayWorld), network, 2000, true, 350);
+        // System.out.println("First Run Result: " + gi.run());
 
 
         console.nextLine();
