@@ -1,7 +1,5 @@
 package com.mayorgraeme;
 
-import com.mayorgraeme.occupant.Carnivore;
-import com.mayorgraeme.occupant.Herbivore;
 import com.mayorgraeme.occupant.Occupant;
 import org.neuroph.core.Connection;
 import org.neuroph.core.Layer;
@@ -12,13 +10,11 @@ import org.neuroph.core.data.DataSetRow;
 import org.neuroph.core.learning.SupervisedLearning;
 import org.neuroph.util.NeuralNetworkCODEC;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
 import static com.mayorgraeme.WorldServices.cloneWorld;
-import static com.mayorgraeme.WorldServices.generateRandomWorld;
 
 /**
  * This class implements a simulated annealing learning rule for supervised
@@ -57,22 +53,14 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
     /**
      * The starting temperature.
      */
-    private double startTemperature;
+    private double startTemperature = 1;
 
     /**
      * The ending temperature.
      */
-    private double stopTemperature;
+    private double stopTemperature = 0.00001;
 
-    /**
-     * The number of cycles that will be used.
-     */
-    private int cycles;
-
-    /**
-     * The current temperature.
-     */
-    protected double temperature;
+    private double alpha = 0.9;
 
     /**
      * Current weights from the neural network.
@@ -86,21 +74,12 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
 
     private Map<String, Occupant[][]> gameWorldMap;
 
-    /**
-     * Construct a simulated annleaing trainer for a feedforward neural network.
-     *
-     * @param network   The neural network to be trained.
-     * @param startTemp The starting temperature.
-     * @param stopTemp  The ending temperature.
-     * @param cycles    The number of cycles in a training iteration.
-     */
-    public GraemeSimulatedAnnealing(final NeuralNetwork network,
-                                      final double startTemp, final double stopTemp, final int cycles) {
+
+    public GraemeSimulatedAnnealing(final NeuralNetwork network, final Map<String, Occupant[][]> gameWorldMap) {
+        this.setMaxIterations(1);
+        this.gameWorldMap = gameWorldMap;
+
         this.network = network;
-        this.temperature = startTemp;
-        this.startTemperature = startTemp;
-        this.stopTemperature = stopTemp;
-        this.cycles = cycles;
 
         this.weights = new double[NeuralNetworkCODEC
                 .determineArraySize(network)];
@@ -109,12 +88,6 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
 
         NeuralNetworkCODEC.network2array(network, this.weights);
         NeuralNetworkCODEC.network2array(network, this.bestWeights);
-    }
-
-    public GraemeSimulatedAnnealing(final NeuralNetwork network, final Map<String, Occupant[][]> gameWorldMap) {
-        this(network, 30, 2, 100); //TODO:reset to 1000;
-        this.setMaxIterations(40);
-        this.gameWorldMap = gameWorldMap;
     }
 
     /**
@@ -126,21 +99,16 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
         return this.network;
     }
 
-    /**
-     * Randomize the weights and thresholds. This function does most of the work
-     * of the class. Each call to this class will randomize the data according
-     * to the current temperature. The higher the temperature the more
-     * randomness.
-     */
+
+    public void randomizeNeuron() {
+        double myDouble = rand.nextInt(100) + 1;
+        this.weights[rand.nextInt(this.weights.length)] = myDouble/100d;
+    }
+
     public void randomize() {
-
-        for (int i = 0; i < this.weights.length; i++) {
-            double add = 0.5 - (Math.random());
-            add /= this.startTemperature;
-            add *= this.temperature;
-            this.weights[i] = this.weights[i] + add;
+        for (int i = 0; i < 30; i++) {
+            randomizeNeuron();
         }
-
         array2network(this.weights, this.network);
     }
 
@@ -193,37 +161,38 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
         double bestError = determineError(trainingSet);
         double startError = bestError;
 
-        this.temperature = this.startTemperature;
+        double temperature = this.startTemperature;
 
-        for (int i = 0; i < this.cycles; i++) {
+        while (temperature > stopTemperature) {
+            for (int i = 0; i < 100; i++) {
+                randomize();
+                double currentError = determineError(trainingSet);
 
-            randomize();
-            double currentError = determineError(trainingSet);
+                //Calc acceptance prob
+                double acceptanceProbability = Math.pow(2.71828, (bestError - currentError) / temperature);
+                double acceptanceProbabilityTimes100 = acceptanceProbability * 100;
 
-            if (currentError < bestError) {
-                System.arraycopy(this.weights, 0, this.bestWeights, 0,
-                        this.weights.length);
-                bestError = currentError;
-            } else
-                System.arraycopy(this.bestWeights, 0, this.weights, 0,
-                        this.weights.length);
 
-            array2network(this.bestWeights, network);
+                if(acceptanceProbabilityTimes100 >= rand.nextInt(100)) {
+                    System.arraycopy(this.weights, 0, this.bestWeights, 0,
+                            this.weights.length);
+                    bestError = currentError;
+                } else {
+                    System.arraycopy(this.bestWeights, 0, this.weights, 0,
+                            this.weights.length);
+                }
 
-            final double ratio = Math.exp(Math.log(this.stopTemperature
-                    / this.startTemperature)
-                    / (this.cycles - 1));
-            this.temperature *= ratio;
+                array2network(this.bestWeights, network);
 
-            System.out.println("Iteration " + getCurrentIteration() + "/"+ getMaxIterations() +" Cycle "+i+"/"+this.cycles+" Start Error "+startError + " bestError "+bestError);
+                System.out.println("Iteration " + getCurrentIteration() + "/"+ getMaxIterations() + " Start Error "+startError + " bestError "+bestError + " current error "+ currentError+ " temp "+temperature);
+            }
+
+            temperature *= alpha;
+
+
+
         }
 
-        this.previousEpochError = getErrorFunction().getTotalError();
-        //TODO WHAT IS THIS????
-//		this.totalNetworkError = bestError;
-
-        // moved stopping condition to separate method hasReachedStopCondition()
-        // so it can be overriden / customized in subclasses
         if (hasReachedStopCondition()) {
             stopLearning();
         }

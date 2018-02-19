@@ -54,7 +54,7 @@ public class App
         // System.out.println("First Run Result: " + gi.run());
 
 
-        console.nextLine();
+//        console.nextLine();
         gsa.learn(dataSet);
 
 
