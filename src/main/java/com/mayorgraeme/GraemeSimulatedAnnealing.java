@@ -8,6 +8,7 @@ import org.neuroph.core.Neuron;
 import org.neuroph.core.data.DataSet;
 import org.neuroph.core.data.DataSetRow;
 import org.neuroph.core.learning.SupervisedLearning;
+import org.neuroph.core.learning.stop.MaxErrorStop;
 import org.neuroph.util.NeuralNetworkCODEC;
 
 import java.util.Iterator;
@@ -53,14 +54,14 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
     /**
      * The starting temperature.
      */
-    private double startTemperature = 1;
+    private double startTemperature = 0.5;
 
     /**
      * The ending temperature.
      */
-    private double stopTemperature = 0.00001;
+    private double stopTemperature = 0.001;
 
-    private double alpha = 0.9;
+    private double alpha = 0.8;
 
     /**
      * Current weights from the neural network.
@@ -106,7 +107,8 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
     }
 
     public void randomize() {
-        for (int i = 0; i < 30; i++) {
+
+        for (int i = 0; i < Math.floor(this.weights.length/100) * 5; i++) {
             randomizeNeuron();
         }
         array2network(this.weights, this.network);
@@ -164,7 +166,7 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
         double temperature = this.startTemperature;
 
         while (temperature > stopTemperature) {
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 50; i++) { //TODO: Should be 100?
                 randomize();
                 double currentError = determineError(trainingSet);
 
@@ -173,7 +175,7 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
                 double acceptanceProbabilityTimes100 = acceptanceProbability * 100;
 
 
-                if(acceptanceProbabilityTimes100 >= rand.nextInt(100)) {
+                if(acceptanceProbabilityTimes100 >= rand.nextInt(100)+1) {
                     System.arraycopy(this.weights, 0, this.bestWeights, 0,
                             this.weights.length);
                     bestError = currentError;
@@ -184,13 +186,15 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
 
                 array2network(this.bestWeights, network);
 
-                System.out.println("Iteration " + getCurrentIteration() + "/"+ getMaxIterations() + " Start Error "+startError + " bestError "+bestError + " current error "+ currentError+ " temp "+temperature);
+                System.out.println("Iteration " + getCurrentIteration() + "/"+ getMaxIterations() + " Start Error "+startError + " bestError "+bestError + " current error "+ currentError+ " temp "+temperature + " acceptanceProbabilityTimes: "+acceptanceProbabilityTimes100);
             }
 
             temperature *= alpha;
 
 
-
+            if (bestError < 7) {
+                break;
+            }
         }
 
         if (hasReachedStopCondition()) {

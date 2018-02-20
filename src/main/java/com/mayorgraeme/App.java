@@ -43,7 +43,7 @@ public class App
         displayWorld[15][15] = new Carnivore();
 
 //        Perceptron network = new Perceptron(4, 4);
-        MultiLayerPerceptron network = new MultiLayerPerceptron(625, 10, 4);
+        MultiLayerPerceptron network = new MultiLayerPerceptron(1250, 4);
 
         GraemeSimulatedAnnealing gsa = new GraemeSimulatedAnnealing(network, gameWorldMap);
 
@@ -55,6 +55,7 @@ public class App
 
 
 //        console.nextLine();
+
         gsa.learn(dataSet);
 
 

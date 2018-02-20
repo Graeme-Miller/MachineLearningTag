@@ -114,10 +114,21 @@ public class GameInstance {
         for (int x = 0; x < occupants.length; x++) {
             for (int y = 0; y < occupants[0].length; y++) {
                 Occupant occupant = occupants[x][y];
-                if (occupant == null) {
-                    inputNeurons[i].setInput(0);
-                } else {
+                if (occupant instanceof Carnivore) {
                     inputNeurons[i].setInput(1);
+                } else {
+                    inputNeurons[i].setInput(0);
+                }
+                i++;
+            }
+        }
+        for (int x = 0; x < occupants.length; x++) {
+            for (int y = 0; y < occupants[0].length; y++) {
+                Occupant occupant = occupants[x][y];
+                if (occupant instanceof  Herbivore) {
+                    inputNeurons[i].setInput(1);
+                } else {
+                    inputNeurons[i].setInput(0);
                 }
                 i++;
             }
