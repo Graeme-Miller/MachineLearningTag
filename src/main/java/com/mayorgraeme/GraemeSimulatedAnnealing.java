@@ -1,6 +1,7 @@
 package com.mayorgraeme;
 
 import com.mayorgraeme.occupant.Occupant;
+import com.mayorgraeme.world.World;
 import org.neuroph.core.Connection;
 import org.neuroph.core.Layer;
 import org.neuroph.core.NeuralNetwork;
@@ -8,14 +9,13 @@ import org.neuroph.core.Neuron;
 import org.neuroph.core.data.DataSet;
 import org.neuroph.core.data.DataSetRow;
 import org.neuroph.core.learning.SupervisedLearning;
-import org.neuroph.core.learning.stop.MaxErrorStop;
 import org.neuroph.util.NeuralNetworkCODEC;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
-import static com.mayorgraeme.WorldServices.cloneWorld;
+import static com.mayorgraeme.world.WorldServices.cloneWorld;
 
 /**
  * This class implements a simulated annealing learning rule for supervised
@@ -73,10 +73,10 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
      */
     private double[] bestWeights;
 
-    private Map<String, Occupant[][]> gameWorldMap;
+    private Map<String, World> gameWorldMap;
 
 
-    public GraemeSimulatedAnnealing(final NeuralNetwork network, final Map<String, Occupant[][]> gameWorldMap) {
+    public GraemeSimulatedAnnealing(final NeuralNetwork network, final Map<String, World> gameWorldMap) {
         this.setMaxIterations(1);
         this.gameWorldMap = gameWorldMap;
 
@@ -128,7 +128,11 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
         while (iterator.hasNext() && !isStopped()) {
             DataSetRow trainingSetRow = iterator.next();
 
-            GameInstance gi = new GameInstance(cloneWorld(gameWorldMap.get(trainingSetRow.getLabel())), network, 100, false, 0);
+
+            World world = gameWorldMap.get(trainingSetRow.getLabel());
+            World clonedWorld = (World)world.clone();
+
+            GameInstance gi = new GameInstance(clonedWorld, network, 100, false, 0);
             int ticks = gi.run();
 //            System.out.println(trainingSetRow.getLabel() + " "+ (100d - ticks));
             result += 100d - ticks;

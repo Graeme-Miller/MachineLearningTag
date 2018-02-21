@@ -3,6 +3,8 @@ package com.mayorgraeme;
 import com.mayorgraeme.occupant.Carnivore;
 import com.mayorgraeme.occupant.Herbivore;
 import com.mayorgraeme.occupant.Occupant;
+import com.mayorgraeme.world.World;
+import com.mayorgraeme.world.WorldServices;
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.Neuron;
 
@@ -12,7 +14,7 @@ import java.util.*;
 
 public class GameInstance {
 
-    Occupant[][] occupants;
+    World world;
     NeuralNetwork neuralNetwork;
     int tick = 0;
     int maxTick;
@@ -27,32 +29,12 @@ public class GameInstance {
     int millisecondsToWait = 0;
     
 
-    public GameInstance(Occupant[][] occupants, NeuralNetwork neuralNetwork, int maxTick, boolean print, int millisecondsToWait) {
-        this.occupants = occupants;
+    public GameInstance(World world, NeuralNetwork neuralNetwork, int maxTick, boolean print, int millisecondsToWait) {
+        this.world = world;
         this.neuralNetwork = neuralNetwork;
         this.maxTick = maxTick;
         this.print = print;
         this.millisecondsToWait = millisecondsToWait;
-
-
-        //Grab the locs of carnivore/herbivore
-        for (int x = 0; x < occupants.length; x++) {
-            Occupant[] occupantRow = occupants[x];
-
-            for (int y = 0; y < occupantRow.length; y++) {
-                Occupant occupant = occupantRow[y];
-
-                if (occupant != null) {
-                    if (occupant instanceof Carnivore) {
-                        carnivore = occupant;
-                        carnivoreLoc = new XY(x, y);
-                    } else if (occupant instanceof Herbivore) {
-                        herbivore = occupant;
-                        herbivoreLoc = new XY(x, y);
-                    }
-                }
-            }
-        }
     }
 
     public int run(){
@@ -66,7 +48,7 @@ public class GameInstance {
             }
 
             if(print) {
-                WorldServices.printWorld(occupants);
+                WorldServices.printWorld(world);
             }
 
             if(millisecondsToWait != 0) {
@@ -81,102 +63,6 @@ public class GameInstance {
         return maxTick;
     }
 
-    private class Vector {
-        double magnitude;
-        Direction direction;
-
-        public Vector(double magnitude, Direction direction) {
-            this.magnitude = magnitude;
-            this.direction = direction;
-        }
-
-        public double getMagnitude() {
-            return magnitude;
-        }
-
-        public Direction getDirection() {
-            return direction;
-        }
-
-        @Override
-        public String toString() {
-            return "Vector{" +
-                    "magnitude=" + magnitude +
-                    ", direction=" + direction +
-                    '}';
-        }
-    }
-
-    public void runHerbivore() {
-
-        int i = 0;
-        Neuron[] inputNeurons = neuralNetwork.getInputNeurons();
-        for (int x = 0; x < occupants.length; x++) {
-            for (int y = 0; y < occupants[0].length; y++) {
-                Occupant occupant = occupants[x][y];
-                if (occupant instanceof Carnivore) {
-                    inputNeurons[i].setInput(1);
-                } else {
-                    inputNeurons[i].setInput(0);
-                }
-                i++;
-            }
-        }
-        for (int x = 0; x < occupants.length; x++) {
-            for (int y = 0; y < occupants[0].length; y++) {
-                Occupant occupant = occupants[x][y];
-                if (occupant instanceof  Herbivore) {
-                    inputNeurons[i].setInput(1);
-                } else {
-                    inputNeurons[i].setInput(0);
-                }
-                i++;
-            }
-        }
-
-         neuralNetwork.calculate();
-        double[] output = neuralNetwork.getOutput();
-
-        List<Vector> list = new ArrayList<>();
-
-        list.add(new Vector(output[0], Direction.NORTH));
-        list.add(new Vector(output[1], Direction.SOUTH));
-        list.add(new Vector(output[2], Direction.WEST));
-        list.add(new Vector(output[3], Direction.EAST));
-
-        Collections.sort(list, new Comparator<Vector>() {
-            @Override
-            public int compare(Vector o1, Vector o2) {
-                return Double.compare(o2.magnitude, o1.magnitude);
-            }
-        });
-
-        for (Vector vector : list) {
-            XY newLoc = null;
-
-            switch (vector.getDirection()) {
-                case NORTH: newLoc = new XY(herbivoreLoc.getX(), herbivoreLoc.getY() - 1) ; break;
-                case SOUTH: newLoc = new XY(herbivoreLoc.getX(), herbivoreLoc.getY() + 1) ; break;
-                case EAST: newLoc = new XY(herbivoreLoc.getX() + 1, herbivoreLoc.getY()) ; break;
-                case WEST: newLoc = new XY(herbivoreLoc.getX() - 1, herbivoreLoc.getY() - 1) ; break;
-            }
-
-            if(checkCanMove(newLoc)) {
-                if(print) {
-                    System.out.println("Moving "+ vector.getDirection());
-                }
-
-                occupants[herbivoreLoc.getX()][herbivoreLoc.getY()] = null;
-                occupants[newLoc.getX()][newLoc.getY()] = herbivore;
-                herbivoreLoc = newLoc;
-
-                return;
-            } else if (print) {
-                System.out.println("Not moving");
-            }
-        }
-
-    }
 
     public boolean inBounds(XY topleft, XY bottomRight, XY currentLoc) {
         return
@@ -244,17 +130,7 @@ public class GameInstance {
 
 
 
-    public boolean checkCanMove(XY xy) {
-        if(xy.getX() < 0 || xy.getY() < 0) {
-            return false;
-        } else if (xy.getX() >= occupants[0].length) {
-            return false;
-        } else if (xy.getY() >= occupants.length) {
-            return false;
-        }
 
-        return occupants[xy.getX()][xy.getY()] == null;
-    }
 
     public double distanceBetweenXY(XY one, XY two) {
         return distanceBetweenPoints(one.getX(), one.getY(), two.getX(), two.getY());

@@ -1,8 +1,10 @@
 package com.mayorgraeme.occupant;
 
+import com.mayorgraeme.world.World;
+
 public class Carnivore implements Occupant {
 
-    public void process(Occupant[][] world) {
+    public void process(World world) {
 
     }
 

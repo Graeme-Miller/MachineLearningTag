@@ -1,5 +1,6 @@
-package com.mayorgraeme;
+package com.mayorgraeme.world;
 
+import com.mayorgraeme.XY;
 import com.mayorgraeme.occupant.Carnivore;
 import com.mayorgraeme.occupant.Herbivore;
 import com.mayorgraeme.occupant.Occupant;
@@ -12,11 +13,13 @@ public class WorldServices {
 
     static Random rand = new Random();
 
-    public static void printWorld(Occupant[][] world){
-        String separator = StringUtils.rightPad("", world.length+2, "-");
+    public static void printWorld(World world){
+        Occupant[][] worldMatrix = world.getOccupantMap();
+
+        String separator = StringUtils.rightPad("", worldMatrix.length+2, "-");
 
         System.out.println(separator);
-        for (Occupant[] occupantRow : world) {
+        for (Occupant[] occupantRow : worldMatrix) {
             System.out.print("|");
             for (Occupant occupant : occupantRow) {
                 if (occupant == null) {
@@ -30,22 +33,14 @@ public class WorldServices {
         System.out.println(separator);
     }
 
+    public static World generateRandomWorld() {
+        World world = new DefaultWorld();
 
-    public static Occupant[][] cloneWorld(Occupant[][] worldToClone) {
-        Occupant[][] newWorld = new Occupant[worldToClone.length][worldToClone[0].length];
-        for (int i = 0; i < newWorld.length; i++) {
-            newWorld[i] = Arrays.copyOf(worldToClone[i], worldToClone[i].length);
-        }
-
-        return newWorld;
-    }
-
-    public static Occupant[][] generateRandomWorld() {
-
-        Occupant[][] world = new Occupant[25][25];
         int herbX = rand.nextInt(25);
         int herbY = rand.nextInt(25);
-        world[herbX][herbY] = new Herbivore();
+
+        Herbivore herbivore = new Herbivore();
+        world.addOccupant(herbivore, new XY(herbX, herbY));
 
         boolean setCarnivore = false;
         while (!setCarnivore) {
@@ -57,7 +52,7 @@ public class WorldServices {
             }
 
             setCarnivore=true;
-            world[carnX][carnY] = new Carnivore();
+            world.addOccupant(new Carnivore(), new XY(carnX, carnY));
         }
 
         return world;
