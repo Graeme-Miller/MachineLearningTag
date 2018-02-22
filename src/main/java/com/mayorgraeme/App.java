@@ -4,6 +4,7 @@ import com.mayorgraeme.occupant.Carnivore;
 import com.mayorgraeme.occupant.Herbivore;
 import com.mayorgraeme.world.DefaultWorld;
 import com.mayorgraeme.world.World;
+import com.mayorgraeme.world.WorldServices;
 import org.neuroph.core.data.DataSet;
 import org.neuroph.core.data.DataSetRow;
 import org.neuroph.nnet.MultiLayerPerceptron;
@@ -23,7 +24,7 @@ public class App
 {
 
     public static void main( String[] args ) throws IOException {
-        MultiLayerPerceptron network = new MultiLayerPerceptron(1250, 4);
+        MultiLayerPerceptron network = new MultiLayerPerceptron(1250, 30, 10, 4);
 
         //Create data set
         DataSet dataSet = new DataSet(4);
@@ -37,19 +38,16 @@ public class App
         }
 
 
-        World displayWorld = new DefaultWorld();
-        Herbivore displayHerbivore = new Herbivore(network);
-        displayWorld.addOccupant(displayHerbivore, new XY(12,12));
-        displayWorld.addOccupant(new Carnivore(displayHerbivore), new XY(15,15));
+        World displayWorld = WorldServices.generateRandomWorld(network);
 
 
         GraemeSimulatedAnnealing gsa = new GraemeSimulatedAnnealing(network, gameWorldMap);
 
         Scanner console = new Scanner(System.in);
 
-        // console.nextLine();
-        // GameInstance gi = new GameInstance(cloneWorld(displayWorld), network, 2000, true, 350);
-        // System.out.println("First Run Result: " + gi.run());
+//        console.nextLine();
+//        GameInstance gi = new GameInstance(displayWorld.clone(), network, 2000, true, 350);
+//        System.out.println("First Run Result: " + gi.run());
 
 
 //        console.nextLine();
@@ -62,6 +60,7 @@ public class App
         System.out.println("Last Run Result: " + gi2.run());
 
 
+        network.save("network_out");
     }
 
 

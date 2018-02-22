@@ -52,14 +52,14 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
     /**
      * The starting temperature.
      */
-    private double startTemperature = 0.5;
+    private double startTemperature = 0.9;
 
     /**
      * The ending temperature.
      */
     private double stopTemperature = 0.001;
 
-    private double alpha = 0.8;
+    private double alpha = 0.9;
 
     /**
      * Current weights from the neural network.
@@ -72,6 +72,8 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
     private double[] bestWeights;
 
     private Map<String, World> gameWorldMap;
+
+    private int ITERATIONS_PER_TEMPERATURE = 100;
 
 
     public GraemeSimulatedAnnealing(final NeuralNetwork network, final Map<String, World> gameWorldMap) {
@@ -168,7 +170,7 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
         double temperature = this.startTemperature;
 
         while (temperature > stopTemperature) {
-            for (int i = 0; i < 50; i++) { //TODO: Should be 100?
+            for (int i = 0; i < ITERATIONS_PER_TEMPERATURE; i++) { //TODO: Should be 100?
                 randomize();
                 double currentError = determineError(trainingSet);
 

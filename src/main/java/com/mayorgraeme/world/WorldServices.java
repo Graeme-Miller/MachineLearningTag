@@ -13,6 +13,7 @@ import java.util.Random;
 public class WorldServices {
 
     static Random rand = new Random();
+    private static final int NO_CARNIVORE = 2;
 
     public static void printWorld(World world){
         Occupant[][] worldMatrix = world.getOccupantMap();
@@ -43,17 +44,17 @@ public class WorldServices {
         Herbivore herbivore = new Herbivore(network);
         world.addOccupant(herbivore, new XY(herbX, herbY));
 
-        boolean setCarnivore = false;
-        while (!setCarnivore) {
+        int noCarnivore = 0;
+        while (noCarnivore < NO_CARNIVORE) {
             int carnX = rand.nextInt(25);
             int carnY = rand.nextInt(25);
 
-            if(carnX == herbX && carnY == herbY) {
+            if(!world.checkCanMove(new XY(carnX, carnY))) {
                 continue;
             }
 
-            setCarnivore=true;
             world.addOccupant(new Carnivore(herbivore), new XY(carnX, carnY));
+            noCarnivore ++;
         }
 
         return world;

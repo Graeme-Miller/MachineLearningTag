@@ -17,11 +17,7 @@ public class GameInstance {
     World world;
     NeuralNetwork neuralNetwork;
     int maxTick;
-    int scanRange = 5;
     boolean print = false;
-
-    XY carnivoreLoc, herbivoreLoc;
-    Occupant carnivore, herbivore;
 
     int millisecondsToWait = 0;
 
