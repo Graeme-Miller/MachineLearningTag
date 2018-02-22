@@ -5,6 +5,7 @@ import com.mayorgraeme.occupant.Carnivore;
 import com.mayorgraeme.occupant.Herbivore;
 import com.mayorgraeme.occupant.Occupant;
 import org.apache.commons.lang3.StringUtils;
+import org.neuroph.core.NeuralNetwork;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -33,13 +34,13 @@ public class WorldServices {
         System.out.println(separator);
     }
 
-    public static World generateRandomWorld() {
+    public static World generateRandomWorld(NeuralNetwork network) {
         World world = new DefaultWorld();
 
         int herbX = rand.nextInt(25);
         int herbY = rand.nextInt(25);
 
-        Herbivore herbivore = new Herbivore();
+        Herbivore herbivore = new Herbivore(network);
         world.addOccupant(herbivore, new XY(herbX, herbY));
 
         boolean setCarnivore = false;
@@ -52,9 +53,17 @@ public class WorldServices {
             }
 
             setCarnivore=true;
-            world.addOccupant(new Carnivore(), new XY(carnX, carnY));
+            world.addOccupant(new Carnivore(herbivore), new XY(carnX, carnY));
         }
 
         return world;
+    }
+
+    public static double distanceBetweenXY(XY one, XY two) {
+        return distanceBetweenPoints(one.getX(), one.getY(), two.getX(), two.getY());
+    }
+
+    public static double distanceBetweenPoints(int x1, int y1, int x2, int y2) {
+        return Math.hypot(x1-x2, y1-y2);
     }
 }

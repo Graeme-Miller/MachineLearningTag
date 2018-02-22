@@ -15,8 +15,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
-import static com.mayorgraeme.world.WorldServices.cloneWorld;
-
 /**
  * This class implements a simulated annealing learning rule for supervised
  * neural networks. It is based on the generic SimulatedAnnealing class. It is

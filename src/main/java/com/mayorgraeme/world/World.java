@@ -12,4 +12,5 @@ public interface World {
     boolean checkCanMove(XY xy);
     public XY getOccupantLocation(Occupant occupant);
     public World clone();
+    public boolean tick();
 }

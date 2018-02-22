@@ -15,15 +15,13 @@ import java.util.List;
 
 public class Herbivore implements Occupant {
 
-    private final World world;
     private final NeuralNetwork neuralNetwork;
 
-    public Herbivore(World world, NeuralNetwork network) {
-        this.world = world;
+    public Herbivore(NeuralNetwork network) {
         this.neuralNetwork = network;
     }
 
-    public void process(World world) {
+    public boolean process(World world) {
 
         Occupant[][] occupants = world.getOccupantMap();
 
@@ -89,12 +87,14 @@ public class Herbivore implements Occupant {
                 world.moveOccupant(this, herbivoreLoc, newLoc);
                 herbivoreLoc = newLoc;
 
-                return;
+                return false;
             }
 //            else if (print) {
 //                System.out.println("Not moving");
 //            }
         }
+
+        return false;
 
     }
 

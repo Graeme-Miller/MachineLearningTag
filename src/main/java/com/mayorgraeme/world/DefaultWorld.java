@@ -38,6 +38,7 @@ public class DefaultWorld implements World {
         }
 
         occupantLocation.put(occupant, xy);
+        occupants[xy.getX()][xy.getY()] = occupant;
 
     }
 
@@ -49,6 +50,8 @@ public class DefaultWorld implements World {
         }
 
         occupantLocation.put(occupant, null);
+        occupants[xy.getX()][xy.getY()] = null;
+
     }
 
     @Override
@@ -56,6 +59,16 @@ public class DefaultWorld implements World {
         World newWorld = new DefaultWorld();
         occupantLocation.forEach(newWorld::addOccupant);
         return newWorld;
+    }
+
+    @Override
+    public boolean tick() {
+        for (Occupant occupant : occupantLocation.keySet()) {
+            if(occupant.process(this)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
