@@ -2,21 +2,18 @@ package com.mayorgraeme;
 
 import com.mayorgraeme.occupant.Carnivore;
 import com.mayorgraeme.occupant.Herbivore;
-import com.mayorgraeme.occupant.Occupant;
-import org.apache.commons.lang3.StringUtils;
+import com.mayorgraeme.world.DefaultWorld;
+import com.mayorgraeme.world.World;
 import org.neuroph.core.data.DataSet;
 import org.neuroph.core.data.DataSetRow;
 import org.neuroph.nnet.MultiLayerPerceptron;
-import org.neuroph.nnet.Perceptron;
 
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import static com.mayorgraeme.WorldServices.cloneWorld;
-import static com.mayorgraeme.WorldServices.generateRandomWorld;
+import static com.mayorgraeme.world.WorldServices.generateRandomWorld;
 
 /**
  * Hello world!
@@ -26,24 +23,25 @@ public class App
 {
 
     public static void main( String[] args ) throws IOException {
+        MultiLayerPerceptron network = new MultiLayerPerceptron(1250, 4);
+
         //Create data set
         DataSet dataSet = new DataSet(4);
-        Map<String, Occupant[][]> gameWorldMap = new HashMap<>();
+        Map<String, World> gameWorldMap = new HashMap<>();
         for (int i = 0; i < 50; i++) {
             DataSetRow dataSetRow = new DataSetRow(1, 1, 1, 1);
             String label = "data-"+i;
             dataSetRow.setLabel(label);
             dataSet.addRow(dataSetRow);
-            gameWorldMap.put(label, generateRandomWorld());
+            gameWorldMap.put(label, generateRandomWorld(network));
         }
 
 
-        Occupant[][] displayWorld = new Occupant[25][25];
-        displayWorld[12][12] = new Herbivore();
-        displayWorld[15][15] = new Carnivore();
+        World displayWorld = new DefaultWorld();
+        Herbivore displayHerbivore = new Herbivore(network);
+        displayWorld.addOccupant(displayHerbivore, new XY(12,12));
+        displayWorld.addOccupant(new Carnivore(displayHerbivore), new XY(15,15));
 
-//        Perceptron network = new Perceptron(4, 4);
-        MultiLayerPerceptron network = new MultiLayerPerceptron(625, 10, 4);
 
         GraemeSimulatedAnnealing gsa = new GraemeSimulatedAnnealing(network, gameWorldMap);
 
@@ -54,12 +52,13 @@ public class App
         // System.out.println("First Run Result: " + gi.run());
 
 
-        console.nextLine();
+//        console.nextLine();
+
         gsa.learn(dataSet);
 
 
         console.nextLine();
-        GameInstance gi2 = new GameInstance(cloneWorld(displayWorld), network, 2000, true, 350);
+        GameInstance gi2 = new GameInstance(displayWorld.clone(), network, 2000, true, 350);
         System.out.println("Last Run Result: " + gi2.run());
 
 
