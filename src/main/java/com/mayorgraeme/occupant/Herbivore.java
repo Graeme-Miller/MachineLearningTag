@@ -25,30 +25,30 @@ public class Herbivore implements Occupant {
 
         Occupant[][] occupants = world.getOccupantMap();
 
-        int i = 0;
-        Neuron[] inputNeurons = neuralNetwork.getInputNeurons();
-        for (int x = 0; x < occupants.length; x++) {
-            for (int y = 0; y < occupants[0].length; y++) {
-                Occupant occupant = occupants[x][y];
-                if (occupant instanceof Carnivore) {
-                    inputNeurons[i].setInput(1);
-                } else {
-                    inputNeurons[i].setInput(0);
-                }
-                i++;
-            }
-        }
-        for (int x = 0; x < occupants.length; x++) {
-            for (int y = 0; y < occupants[0].length; y++) {
-                Occupant occupant = occupants[x][y];
-                if (occupant instanceof  Herbivore) {
-                    inputNeurons[i].setInput(1);
-                } else {
-                    inputNeurons[i].setInput(0);
-                }
-                i++;
-            }
-        }
+        XY herbivoreLoc = world.getOccupantLocation(this);
+        int scanRange = 5;
+
+
+        int inputInt = 0;
+        //Scan Up
+        XY upTopLeft = new XY(herbivoreLoc.getX() - scanRange, herbivoreLoc.getY() - scanRange);
+        XY upBottomRight = new XY(herbivoreLoc.getX() + scanRange, herbivoreLoc.getY());
+        inputInt = scanBox(upTopLeft, upBottomRight, world, neuralNetwork, inputInt);
+
+        //Scan Down
+        XY downTopLeft = new XY(herbivoreLoc.getX() - scanRange, herbivoreLoc.getY());
+        XY downBottomRight = new XY(herbivoreLoc.getX() + scanRange, herbivoreLoc.getY() + scanRange);
+        inputInt = scanBox(downTopLeft, downBottomRight, world, neuralNetwork, inputInt);
+
+        //Scan Left
+        XY leftTopLeft = new XY(herbivoreLoc.getX() - scanRange, herbivoreLoc.getY() - scanRange);
+        XY leftBottomRight = new XY(herbivoreLoc.getX(), herbivoreLoc.getY() + scanRange);
+        inputInt = scanBox(leftTopLeft, leftBottomRight, world, neuralNetwork, inputInt);
+
+        //Scan Right
+        XY rightTopLeft = new XY(herbivoreLoc.getX(), herbivoreLoc.getY() - scanRange);
+        XY rightBottomRight = new XY(herbivoreLoc.getX() + scanRange, herbivoreLoc.getY() + scanRange);
+        inputInt = scanBox(rightTopLeft, rightBottomRight, world, neuralNetwork, inputInt);
 
         neuralNetwork.calculate();
         double[] output = neuralNetwork.getOutput();
@@ -66,8 +66,6 @@ public class Herbivore implements Occupant {
                 return Double.compare(o2.getMagnitude(), o1.getMagnitude());
             }
         });
-
-        XY herbivoreLoc = world.getOccupantLocation(this);
 
         for (Vector vector : list) {
             XY newLoc = null;
@@ -98,6 +96,26 @@ public class Herbivore implements Occupant {
 
     }
 
+    public int scanBox(XY topLeft, XY bottomRight, World world, NeuralNetwork network, int startInt) {
+        Neuron[] inputNeurons = neuralNetwork.getInputNeurons();
+
+        int returnInt = startInt;
+        for (int x = topLeft.getX(); x <= bottomRight.getX(); x++) {
+            for (int y = topLeft.getY(); y <= bottomRight.getY(); y++) {
+                if(world.inBounds(new XY(x, y))) {
+                    Occupant occupant = world.getOccupantMap()[x][y];
+                    if(occupant instanceof Carnivore) {
+                        inputNeurons[returnInt].setInput(1);
+                    }
+                }
+
+                returnInt++;
+            }
+        }
+
+        return  returnInt;
+
+    }
 
     public char getChar() {
         return 'h';

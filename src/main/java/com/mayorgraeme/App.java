@@ -24,7 +24,7 @@ public class App
 {
 
     public static void main( String[] args ) throws IOException {
-        MultiLayerPerceptron network = new MultiLayerPerceptron(1250, 30, 10, 4);
+        MultiLayerPerceptron network = new MultiLayerPerceptron(265, 133, 30, 4);
 
         //Create data set
         DataSet dataSet = new DataSet(4);
