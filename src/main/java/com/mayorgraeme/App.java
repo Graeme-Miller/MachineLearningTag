@@ -29,7 +29,7 @@ public class App
         //Create data set
         DataSet dataSet = new DataSet(4);
         Map<String, World> gameWorldMap = new HashMap<>();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 1; i++) {
             DataSetRow dataSetRow = new DataSetRow(1, 1, 1, 1);
             String label = "data-"+i;
             dataSetRow.setLabel(label);
@@ -38,7 +38,7 @@ public class App
         }
 
 
-        World displayWorld = WorldServices.generateRandomWorld(network);
+        World displayWorld = gameWorldMap.entrySet().iterator().next().getValue();//WorldServices.generateRandomWorld(network);
 
 
         GraemeSimulatedAnnealing gsa = new GraemeSimulatedAnnealing(network, gameWorldMap);
