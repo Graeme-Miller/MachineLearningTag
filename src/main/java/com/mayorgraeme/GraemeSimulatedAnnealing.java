@@ -1,6 +1,5 @@
 package com.mayorgraeme;
 
-import com.mayorgraeme.occupant.Occupant;
 import com.mayorgraeme.world.World;
 import org.neuroph.core.Connection;
 import org.neuroph.core.Layer;
@@ -12,6 +11,7 @@ import org.neuroph.core.learning.SupervisedLearning;
 import org.neuroph.util.NeuralNetworkCODEC;
 
 import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -53,16 +53,16 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
     /**
      * The starting temperature.
      */
-    private double startTemperature = 0.9;
+    private double startTemperature;
 
     /**
      * The ending temperature.
      */
-    private double stopTemperature = 0.1;
+    private double stopTemperature;
 
-    private double alpha = 0.95;
+    private double alpha;
 
-    private int MAX_TICKS = 300;
+    private int maxTicks;
 
     /**
      * Current weights from the neural network.
@@ -76,25 +76,33 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
 
     private Map<String, World> gameWorldMap;
 
-    private int ITERATIONS_PER_TEMPERATURE = 1000;
+    private final int iterationsPerTemperature;
 
     DecimalFormat decimalFormat = new DecimalFormat("##.00");
 
-
-
-    public GraemeSimulatedAnnealing(final NeuralNetwork network, final Map<String, World> gameWorldMap) {
+    public GraemeSimulatedAnnealing(NeuralNetwork network, double startTemperature, double stopTemperature, double alpha, int maxTicks, Map<String, World> gameWorldMap, int iterationsPerTemperature) {
         this.setMaxIterations(1);
-        this.gameWorldMap = gameWorldMap;
 
         this.network = network;
+        this.startTemperature = startTemperature;
+        this.stopTemperature = stopTemperature;
+        this.alpha = alpha;
+        this.maxTicks = maxTicks;
+        this.gameWorldMap = gameWorldMap;
+        this.iterationsPerTemperature = iterationsPerTemperature;
 
         this.weights = new double[NeuralNetworkCODEC
                 .determineArraySize(network)];
         this.bestWeights = new double[NeuralNetworkCODEC
                 .determineArraySize(network)];
 
+
         NeuralNetworkCODEC.network2array(network, this.weights);
         NeuralNetworkCODEC.network2array(network, this.bestWeights);
+    }
+
+    public GraemeSimulatedAnnealing(final NeuralNetwork network, final Map<String, World> gameWorldMap) {
+        this(network, 0.9, 0.1, 0.95, 300, gameWorldMap, 1000);
     }
 
     /**
@@ -138,10 +146,10 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
             World world = gameWorldMap.get(trainingSetRow.getLabel());
             World clonedWorld = (World)world.clone();
 
-            GameInstance gi = new GameInstance(clonedWorld, network, MAX_TICKS, false, 0);
+            GameInstance gi = new GameInstance(clonedWorld, network, maxTicks, false, 0);
             int ticks = gi.run();
 //            System.out.println(trainingSetRow.getLabel() + " "+ (100d - ticks));
-            result += Math.pow(MAX_TICKS + 1 - ticks, 1.05);
+            result += Math.pow(maxTicks + 1 - ticks, 1.05);
         }
 
 //        System.out.println("Final: " + result + "/" + trainingSet.size()+ " = "+ result/trainingSet.size());
@@ -176,7 +184,7 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
         double temperature = this.startTemperature;
 
         while (temperature > stopTemperature) {
-            for (int i = 0; i < ITERATIONS_PER_TEMPERATURE; i++) { //TODO: Should be 100?
+            for (int i = 0; i < iterationsPerTemperature; i++) { //TODO: Should be 100?
                 randomize();
                 double currentError = determineError(trainingSet);
 
@@ -196,7 +204,7 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
 
                 array2network(this.bestWeights, network);
 
-                System.out.println("Iteration " + getCurrentIteration() + "/"+ getMaxIterations() + " Start Error "+ decimalFormat.format(startError) + " bestError "+decimalFormat.format(bestError) + " current error "+ decimalFormat.format(currentError)+ " temp "+decimalFormat.format(temperature) + " acceptanceProbabilityTimes: "+decimalFormat.format(acceptanceProbabilityTimes100));
+                System.out.println("Time: "+new Date()+" Iteration " + getCurrentIteration() + "/"+ getMaxIterations() + " Start Error "+ decimalFormat.format(startError) + " bestError "+decimalFormat.format(bestError) + " current error "+ decimalFormat.format(currentError)+ " temp "+decimalFormat.format(temperature) + " acceptanceProbabilityTimes: "+decimalFormat.format(acceptanceProbabilityTimes100));
             }
 
             temperature *= alpha;
@@ -212,18 +220,6 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
         }
     }
 
-    /**
-     * Update the total error.
-     */
-//    protected void updateTotalNetworkError(double[] patternError) {
-//        double sqrErrorSum = 0;
-//        for (double error : patternError) {
-//            sqrErrorSum += (error * error);
-//        }
-//
-//        //TODO WHAT IS THIS?????
-////		this.totalNetworkError += sqrErrorSum / (2 * patternError.length);
-//    }
 
     /**
      * Not used.
