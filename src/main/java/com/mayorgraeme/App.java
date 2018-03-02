@@ -32,6 +32,7 @@ public class App
         Options options = new Options();
 
         options.addOption("r", "replay", false, "Will perform a replay");
+        options.addOption("o", "networkFilename", false, "The name of the file to save or replay");
         options.addOption("s", "startTemperature", true, "Start temp");
         options.addOption("e","stopTemperature", true, "Stop temp");
         options.addOption("a", "alpha", true, "alpha");
@@ -45,14 +46,16 @@ public class App
 
         boolean replay = Boolean.parseBoolean(Optional.of(cmd.getOptionValue("replay")).orElse("false"));
         if(replay) {
-            replay();
+            replay(cmd);
         } else {
             machineLearn(cmd);
         }
     }
 
-    private static void replay() {
-        NeuralNetwork network  = NeuralNetwork.createFromFile("network_out");
+    private static void replay(CommandLine cmd) {
+        String networkFilename = cmd.getOptionValue("networkFilename");
+
+        NeuralNetwork network  = NeuralNetwork.createFromFile(networkFilename);
         World randomWorld = generateRandomWorld(network);
 
         GameInstance gi = new GameInstance(randomWorld.clone(), network, 2000, true, 350);
@@ -66,6 +69,7 @@ public class App
         int maxTicks = Integer.parseInt(cmd.getOptionValue("maxTicks"));
         int iterationsPerTemperature = Integer.parseInt(cmd.getOptionValue("iterationsPerTemperature"));
         int trainingSize = Integer.parseInt(cmd.getOptionValue("trainingSize"));
+        String networkFilename = cmd.getOptionValue("networkFilename");
 
 
         MultiLayerPerceptron network = new MultiLayerPerceptron(265, 133, 30, 4);
@@ -83,7 +87,7 @@ public class App
 
         GraemeSimulatedAnnealing gsa = new GraemeSimulatedAnnealing(network, startTemperature, stopTemperature, alpha, maxTicks, gameWorldMap, iterationsPerTemperature);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> network.save("network_out")));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> network.save(networkFilename)));
         gsa.learn(dataSet);
     }
 
