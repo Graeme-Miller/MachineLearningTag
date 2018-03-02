@@ -42,7 +42,7 @@ public class App
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
-        
+
         if(cmd.hasOption("r")) {
             replay(cmd);
         } else {
@@ -67,7 +67,12 @@ public class App
         int maxTicks = Integer.parseInt(cmd.getOptionValue("maxTicks"));
         int iterationsPerTemperature = Integer.parseInt(cmd.getOptionValue("iterationsPerTemperature"));
         int trainingSize = Integer.parseInt(cmd.getOptionValue("trainingSize"));
-        String networkFilename = cmd.getOptionValue("networkFilename");
+        String networkFilename;
+        if (cmd.hasOption("networkFilename")) {
+            networkFilename = cmd.getOptionValue("networkFilename");
+        } else {
+            networkFilename = "network_out_default";
+        }
 
 
         MultiLayerPerceptron network = new MultiLayerPerceptron(265, 133, 30, 4);
