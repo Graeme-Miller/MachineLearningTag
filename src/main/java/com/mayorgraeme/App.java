@@ -32,7 +32,7 @@ public class App
         Options options = new Options();
 
         options.addOption("r", "replay", false, "Will perform a replay");
-        options.addOption("o", "networkFilename", false, "The name of the file to save or replay");
+        options.addOption("f", "networkFilename", true, "The name of the file to save or replay");
         options.addOption("s", "startTemperature", true, "Start temp");
         options.addOption("e","stopTemperature", true, "Stop temp");
         options.addOption("a", "alpha", true, "alpha");
@@ -42,10 +42,8 @@ public class App
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
-
-
-        boolean replay = Boolean.parseBoolean(Optional.of(cmd.getOptionValue("replay")).orElse("false"));
-        if(replay) {
+        
+        if(cmd.hasOption("r")) {
             replay(cmd);
         } else {
             machineLearn(cmd);
