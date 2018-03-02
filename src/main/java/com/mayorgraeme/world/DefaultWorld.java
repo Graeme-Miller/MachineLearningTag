@@ -73,15 +73,20 @@ public class DefaultWorld implements World {
 
     @Override
     public boolean checkCanMove(XY xy) {
+        return inBounds(xy) && occupants[xy.getX()][xy.getY()] == null;
+    }
+
+    @Override
+    public boolean inBounds(XY xy) {
         if(xy.getX() < 0 || xy.getY() < 0) {
             return false;
         } else if (xy.getX() >= occupants[0].length) {
             return false;
         } else if (xy.getY() >= occupants.length) {
             return false;
+        } else {
+            return true;
         }
-
-        return occupants[xy.getX()][xy.getY()] == null;
     }
 
     @Override

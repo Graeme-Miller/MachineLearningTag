@@ -13,4 +13,5 @@ public interface World {
     public XY getOccupantLocation(Occupant occupant);
     public World clone();
     public boolean tick();
+    boolean inBounds(XY xy);
 }
