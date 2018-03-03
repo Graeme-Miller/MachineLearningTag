@@ -50,6 +50,12 @@ public class Herbivore implements Occupant {
         XY rightBottomRight = new XY(herbivoreLoc.getX() + scanRange, herbivoreLoc.getY() + scanRange);
         inputInt = scanBox(rightTopLeft, rightBottomRight, world, neuralNetwork, inputInt);
 
+        Neuron[] inputNeurons = neuralNetwork.getInputNeurons();
+        inputNeurons[inputInt++].setInput(herbivoreLoc.getX());
+        inputNeurons[inputInt++].setInput(occupants.length - herbivoreLoc.getX());
+        inputNeurons[inputInt++].setInput(herbivoreLoc.getY());
+        inputNeurons[inputInt++].setInput(occupants[0].length - herbivoreLoc.getY());
+
         neuralNetwork.calculate();
         double[] output = neuralNetwork.getOutput();
 
@@ -78,18 +84,12 @@ public class Herbivore implements Occupant {
             }
 
             if(world.checkCanMove(newLoc)) {
-//                if(print) {
-//                    System.out.println("Moving "+ vector.getDirection());
-//                }
 
                 world.moveOccupant(this, herbivoreLoc, newLoc);
                 herbivoreLoc = newLoc;
 
                 return false;
             }
-//            else if (print) {
-//                System.out.println("Not moving");
-//            }
         }
 
         return false;

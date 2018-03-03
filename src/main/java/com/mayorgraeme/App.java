@@ -1,10 +1,6 @@
 package com.mayorgraeme;
 
-import com.mayorgraeme.occupant.Carnivore;
-import com.mayorgraeme.occupant.Herbivore;
-import com.mayorgraeme.world.DefaultWorld;
 import com.mayorgraeme.world.World;
-import com.mayorgraeme.world.WorldServices;
 import org.apache.commons.cli.*;
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.data.DataSet;
@@ -14,8 +10,6 @@ import org.neuroph.nnet.MultiLayerPerceptron;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Scanner;
 
 import static com.mayorgraeme.world.WorldServices.generateRandomWorld;
 
@@ -75,7 +69,7 @@ public class App
         }
 
 
-        MultiLayerPerceptron network = new MultiLayerPerceptron(265, 133, 30, 4);
+        MultiLayerPerceptron network = new MultiLayerPerceptron(269, 30, 10, 4);
 
         //Create data set
         DataSet dataSet = new DataSet(4);
