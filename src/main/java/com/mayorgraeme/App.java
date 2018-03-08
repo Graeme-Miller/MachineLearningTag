@@ -33,6 +33,7 @@ public class App
         options.addOption("t", "maxTicks", true, "Max Ticks");
         options.addOption("i", "iterationsPerTemperature", true, "Iterations Per Temperature");
         options.addOption("t", "trainingSize", true, "Training Size");
+        options.addOption("p", "percentNeuronsChange", true, "The percetnage of neurons to change");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
@@ -61,6 +62,8 @@ public class App
         int maxTicks = Integer.parseInt(cmd.getOptionValue("maxTicks"));
         int iterationsPerTemperature = Integer.parseInt(cmd.getOptionValue("iterationsPerTemperature"));
         int trainingSize = Integer.parseInt(cmd.getOptionValue("trainingSize"));
+        int percentNeuronsChange = Integer.parseInt(cmd.getOptionValue("percentNeuronsChange"));
+
         String networkFilename;
         if (cmd.hasOption("networkFilename")) {
             networkFilename = cmd.getOptionValue("networkFilename");
@@ -82,7 +85,7 @@ public class App
             gameWorldMap.put(label, generateRandomWorld(network));
         }
 
-        GraemeSimulatedAnnealing gsa = new GraemeSimulatedAnnealing(network, startTemperature, stopTemperature, alpha, maxTicks, gameWorldMap, iterationsPerTemperature);
+        GraemeSimulatedAnnealing gsa = new GraemeSimulatedAnnealing(network, startTemperature, stopTemperature, alpha, maxTicks, gameWorldMap, iterationsPerTemperature, percentNeuronsChange);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> network.save(networkFilename)));
         gsa.learn(dataSet);

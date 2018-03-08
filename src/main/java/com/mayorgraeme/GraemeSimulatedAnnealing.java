@@ -78,9 +78,11 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
 
     private final int iterationsPerTemperature;
 
+    private final int percentNeuronsChange;
+
     DecimalFormat decimalFormat = new DecimalFormat("##.00");
 
-    public GraemeSimulatedAnnealing(NeuralNetwork network, double startTemperature, double stopTemperature, double alpha, int maxTicks, Map<String, World> gameWorldMap, int iterationsPerTemperature) {
+    public GraemeSimulatedAnnealing(NeuralNetwork network, double startTemperature, double stopTemperature, double alpha, int maxTicks, Map<String, World> gameWorldMap, int iterationsPerTemperature, int percentNeuronsChange) {
         this.setMaxIterations(1);
 
         this.network = network;
@@ -90,6 +92,7 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
         this.maxTicks = maxTicks;
         this.gameWorldMap = gameWorldMap;
         this.iterationsPerTemperature = iterationsPerTemperature;
+        this.percentNeuronsChange = percentNeuronsChange;
 
         this.weights = new double[NeuralNetworkCODEC
                 .determineArraySize(network)];
@@ -102,7 +105,7 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
     }
 
     public GraemeSimulatedAnnealing(final NeuralNetwork network, final Map<String, World> gameWorldMap) {
-        this(network, 0.9, 0.1, 0.95, 300, gameWorldMap, 1000);
+        this(network, 0.9, 0.1, 0.95, 300, gameWorldMap, 1000, 5);
     }
 
     /**
@@ -122,7 +125,7 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
 
     public void randomize() {
 
-        for (int i = 0; i < Math.floor(this.weights.length/100) * 5; i++) {
+        for (int i = 0; i < Math.floor(this.weights.length/100) * percentNeuronsChange; i++) {
             randomizeNeuron();
         }
         array2network(this.weights, this.network);
