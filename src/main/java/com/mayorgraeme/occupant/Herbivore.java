@@ -31,24 +31,10 @@ public class Herbivore implements Occupant {
 
         int inputInt = 0;
         //Scan Up
-        XY upTopLeft = new XY(herbivoreLoc.getX() - scanRange, herbivoreLoc.getY() - scanRange);
-        XY upBottomRight = new XY(herbivoreLoc.getX() + scanRange, herbivoreLoc.getY());
-        inputInt = scanBox(upTopLeft, upBottomRight, world, neuralNetwork, inputInt);
+        XY topLeft = new XY(herbivoreLoc.getX() - scanRange, herbivoreLoc.getY() - scanRange);
+        XY bottomRight = new XY(herbivoreLoc.getX() + scanRange, herbivoreLoc.getY() + scanRange);
+        inputInt = scanBox(topLeft, bottomRight, world, neuralNetwork, inputInt);
 
-        //Scan Down
-        XY downTopLeft = new XY(herbivoreLoc.getX() - scanRange, herbivoreLoc.getY());
-        XY downBottomRight = new XY(herbivoreLoc.getX() + scanRange, herbivoreLoc.getY() + scanRange);
-        inputInt = scanBox(downTopLeft, downBottomRight, world, neuralNetwork, inputInt);
-
-        //Scan Left
-        XY leftTopLeft = new XY(herbivoreLoc.getX() - scanRange, herbivoreLoc.getY() - scanRange);
-        XY leftBottomRight = new XY(herbivoreLoc.getX(), herbivoreLoc.getY() + scanRange);
-        inputInt = scanBox(leftTopLeft, leftBottomRight, world, neuralNetwork, inputInt);
-
-        //Scan Right
-        XY rightTopLeft = new XY(herbivoreLoc.getX(), herbivoreLoc.getY() - scanRange);
-        XY rightBottomRight = new XY(herbivoreLoc.getX() + scanRange, herbivoreLoc.getY() + scanRange);
-        inputInt = scanBox(rightTopLeft, rightBottomRight, world, neuralNetwork, inputInt);
 
         Neuron[] inputNeurons = neuralNetwork.getInputNeurons();
         inputNeurons[inputInt++].setInput(herbivoreLoc.getX());
@@ -106,6 +92,8 @@ public class Herbivore implements Occupant {
                     Occupant occupant = world.getOccupantMap()[x][y];
                     if(occupant instanceof Carnivore) {
                         inputNeurons[returnInt].setInput(1);
+                    } else {
+                        inputNeurons[returnInt].setInput(0);
                     }
                 }
 

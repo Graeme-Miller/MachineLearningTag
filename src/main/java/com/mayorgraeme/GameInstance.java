@@ -33,13 +33,15 @@ public class GameInstance {
     public int run() {
         for (int i = 0; i < maxTick; i++) {
 
-            if (world.tick()) {
-                return i;
-            }
+
 
 
             if (print) {
                 WorldServices.printWorld(world);
+            }
+
+            if (world.tick()) {
+                return i;
             }
 
             if (millisecondsToWait != 0) {

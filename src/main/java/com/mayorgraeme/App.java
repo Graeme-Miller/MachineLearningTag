@@ -72,7 +72,7 @@ public class App
         }
 
 
-        MultiLayerPerceptron network = new MultiLayerPerceptron(269, 30, 10, 4);
+        MultiLayerPerceptron network = new MultiLayerPerceptron(125, 30, 4);
 
         //Create data set
         DataSet dataSet = new DataSet(4);

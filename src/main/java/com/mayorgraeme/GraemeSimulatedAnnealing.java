@@ -152,7 +152,7 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
             GameInstance gi = new GameInstance(clonedWorld, network, maxTicks, false, 0);
             int ticks = gi.run();
 //            System.out.println(trainingSetRow.getLabel() + " "+ (100d - ticks));
-            result += Math.pow(maxTicks + 1 - ticks, 1.05);
+            result +=  maxTicks + 1 - ticks; //Math.pow(maxTicks + 1 - ticks, 1.05);
         }
 
 //        System.out.println("Final: " + result + "/" + trainingSet.size()+ " = "+ result/trainingSet.size());
@@ -192,7 +192,7 @@ public class GraemeSimulatedAnnealing extends SupervisedLearning {
                 double currentError = determineError(trainingSet);
 
                 //Calc acceptance prob
-                double acceptanceProbability = Math.pow(2.71828, (bestError - currentError) / temperature);
+                double acceptanceProbability = Math.pow(2.71828, ((bestError - currentError) /10)/ temperature);
                 double acceptanceProbabilityTimes100 = acceptanceProbability * 100;
 
 
