@@ -72,7 +72,17 @@ public class App
         }
 
 
-        MultiLayerPerceptron network = new MultiLayerPerceptron(125, 30, 4);
+        int[] ints = new int[4];
+        ints[0] = 125;
+        ints[1] = 75;
+        ints[2] = 30;
+        ints[3] = 4;
+        MultiLayerPerceptron network = new MultiLayerPerceptron(ints);
+        System.out.println("Network: ");
+        for (int anInt : ints) {
+            System.out.println(anInt);
+        }
+        System.out.println("------------------------------");
 
         //Create data set
         DataSet dataSet = new DataSet(4);
